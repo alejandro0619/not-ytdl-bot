@@ -28,10 +28,10 @@ To clone and run this application, you'll need [Git](https://git-scm.com) and [N
 
 ```bash
 # Clone this repository
-$ git clone https://github.com/alejandro0619/Kanzen-CLI
+$ git clone https://github.com/alejandro0619/not-ytdl-bot
 
 # Go into the repository
-$ cd Kanzen-CLI
+$ cd not-ytdl-bot
 
 # Install dependencies
 $ npm install
