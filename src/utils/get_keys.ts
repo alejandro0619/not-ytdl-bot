@@ -2,8 +2,6 @@
 //Code under MIT license.
 import dotenv from 'dotenv';
 
-
-
 // Note this function is getting the /.env (.env in the root of your project) path as a param by default.
 // By the way you can pass a custom path if your .env is not on the root.
 
