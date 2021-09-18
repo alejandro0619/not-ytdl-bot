@@ -5,9 +5,11 @@ import TlgBot from 'node-telegram-bot-api';
 import axios, { AxiosResponse } from 'axios';
 import { dirname, join, basename, resolve } from 'path';
 import { URL } from 'url';
-import fs from 'fs';
+import fs  from 'fs';
+import fsp from 'fs/promises';
 import qs from 'qs';
 import { IFetch, ILinks, IConvert } from '../interfaces/Controllers_interface.js';
+import genNumber from '../utils/name_file.js';
 
 const __dirname: string = dirname(new URL(import.meta.url).pathname);
 
@@ -111,23 +113,30 @@ class Controllers {
     }
   }
   // this method will download a given video / music by url into the temp folder.
-  public async download(url: string, downloadFolder: string = this._TempPath): Promise<{ success: boolean, path?: string, err?: unknown}> {
-    const fileName: string = basename(url);
-    const localFilePath: string = resolve(__dirname, downloadFolder, fileName);
+  public async download(url: string, downloadFolder: string = this._TempPath, title: string): Promise<{
+    success: boolean,
+    path?: string,
+    err?: unknown
+  }> {
+    const gnNum = genNumber();
+    
+    const localFilePath: string = resolve(__dirname, downloadFolder, `${gnNum}.mp3`);
       try {
         const response: AxiosResponse<any> = await axios({
           method: 'GET',
           url: url,
           responseType: 'stream',
         });
+        
+        const w: fs.WriteStream = response.data.pipe(fs.createWriteStream(localFilePath));
+        
+        w.on('finish', () => {
+          console.log('downloaded.')
+        });
 
-    const w: fs.WriteStream = response.data.pipe(fs.createWriteStream(localFilePath));
-      w.on('finish', () => {
-        console.log('downloaded.') 
-      });
         return {
           success: true,
-          path: join(this._TempPath, fileName)
+          path: join(this._TempPath, localFilePath)
         }
     } catch (err) {
         return {
@@ -140,7 +149,10 @@ class Controllers {
 }
 
 const test = new Controllers();
-const test2 = await test.fetch('https://youtu.be/T8CNMYdiUEE', 'mp3');
-if (test2.vid && test2.links) {
-  test.convert(test2.vid, test2.links[4].k)
- }
+const test2 = await test.fetch('https://youtu.be/0d-1ZilyKdw', 'mp3');
+if (test2.links) {
+  const a = await test.convert(test2.vid, test2.links[4].k);
+  await test.download(a.dlink , undefined ,test2.title)
+}
+  
+ 
